@@ -81,8 +81,33 @@ void clear(Node*& root) {
 //                             //         kiri milik 60
 // =============================================================================
 
-bool insert(Node*& root, int nilai) {
-    return false;
+bool insert(Node *&root, int nilai) {
+
+    // Jika posisi kosong, buat node baru
+    if (root == nullptr)
+    {
+        root = new Node;
+        root->data = nilai;
+        root->left = nullptr;
+        root->right = nullptr;
+
+        return true;
+    }
+
+    // Jika nilai sudah ada, tolak
+    if (nilai == root->data)
+    {
+        return false;
+    }
+
+    // Jika lebih kecil, masuk ke kiri
+    if (nilai < root->data)
+    {
+        return insert(root->left, nilai);
+    }
+
+    // Jika lebih besar, masuk ke kanan
+    return insert(root->right, nilai);
 }
 
 // =============================================================================
@@ -112,8 +137,28 @@ bool insert(Node*& root, int nilai) {
 //     cari(nullptr, 10);   // nullptr — tree-nya kosong
 // =============================================================================
 
-const Node* cari(const Node* root, int nilai) {
-    return nullptr;
+const Node *cari(const Node *root, int nilai){
+
+    // Tree kosong atau nilai tidak ditemukan
+    if (root == nullptr)
+    {
+        return nullptr;
+    }
+
+    // Nilai ditemukan
+    if (root->data == nilai)
+    {
+        return root;
+    }
+
+    // Cari ke kiri
+    if (nilai < root->data)
+    {
+        return cari(root->left, nilai);
+    }
+
+    // Cari ke kanan
+    return cari(root->right, nilai);
 }
 
 // =============================================================================
@@ -145,8 +190,22 @@ const Node* cari(const Node* root, int nilai) {
 //             30
 // =============================================================================
 
-const Node* minimum(const Node* root) {
-    return nullptr;
+const Node *minimum(const Node *root){
+
+    // Jika tree kosong
+    if (root == nullptr)
+    {
+        return nullptr;
+    }
+
+    // Selama masih ada cabang kiri
+    while (root->left != nullptr)
+    {
+        root = root->left;
+    }
+
+    // Node paling kiri adalah nilai terkecil
+    return root;
 }
 
 // =============================================================================
@@ -208,8 +267,71 @@ const Node* minimum(const Node* root) {
 //     inorder sesudahnya:  20 30 40 60 70 80    (tetap terurut naik)
 // =============================================================================
 
-bool hapus(Node*& root, int nilai) {
-    return false;
+bool hapus(Node *&root, int nilai)
+{
+
+    // Jika tree kosong atau nilai tidak ditemukan
+    if (root == nullptr)
+    {
+        return false;
+    }
+
+    // Cari ke cabang kiri
+    if (nilai < root->data)
+    {
+        return hapus(root->left, nilai);
+    }
+
+    // Cari ke cabang kanan
+    if (nilai > root->data)
+    {
+        return hapus(root->right, nilai);
+    }
+
+    // ==========================================
+    // NILAI DITEMUKAN
+    // ==========================================
+
+    // KEADAAN 1: Tidak memiliki anak (0 child)
+    if (root->left == nullptr && root->right == nullptr)
+    {
+        delete root;
+        root = nullptr;
+
+        return true;
+    }
+
+    // KEADAAN 2: Hanya memiliki anak kanan
+    if (root->left == nullptr)
+    {
+        Node *bantu = root;
+        root = root->right;
+
+        delete bantu;
+
+        return true;
+    }
+
+    // KEADAAN 2: Hanya memiliki anak kiri
+    if (root->right == nullptr)
+    {
+        Node *bantu = root;
+        root = root->left;
+
+        delete bantu;
+
+        return true;
+    }
+
+    // KEADAAN 3: Memiliki dua anak
+    // Cari inorder successor pada subtree kanan
+    const Node *successor = minimum(root->right);
+
+    // Ganti data node dengan data successor
+    root->data = successor->data;
+
+    // Hapus node successor yang lama
+    return hapus(root->right, successor->data);
 }
 
 // =============================================================================
@@ -249,8 +371,35 @@ bool hapus(Node*& root, int nilai) {
 //         Tokonya tidak punya barang sama sekali.
 // =============================================================================
 
-const Node* termahalTerbeli(const Node* root, int uang) {
-    return nullptr;
+const Node *termahalTerbeli(const Node *root, int uang)
+{
+
+    // Jika tree kosong
+    if (root == nullptr)
+    {
+        return nullptr;
+    }
+
+    // Jika harga lebih mahal dari uang,
+    // cari kemungkinan harga yang terjangkau di kiri
+    if (root->data > uang)
+    {
+        return termahalTerbeli(root->left, uang);
+    }
+
+    // Jika harga masih terjangkau,
+    // cari kemungkinan harga lebih mahal di kanan
+    const Node *hasil = termahalTerbeli(root->right, uang);
+
+    // Jika ditemukan harga yang lebih mahal
+    // tetapi masih terjangkau, gunakan hasil tersebut
+    if (hasil != nullptr)
+    {
+        return hasil;
+    }
+
+    // Jika tidak ada, gunakan node sekarang
+    return root;
 }
 
 // =============================================================================
